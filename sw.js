@@ -6,6 +6,8 @@ const SHELL_FILES = [
   './src/theme/CedrellaTheme.css',
   './manifest.json',
   './icons/icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
   './src/components/Dashboard.js',
   './src/components/MetricCard.js',
   './src/components/AlertBanner.js',
