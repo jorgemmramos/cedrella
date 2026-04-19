@@ -34,16 +34,16 @@
   <div id="app"></div>
 
   <script type="module">
-    import { PT }            from './src/i18n/pt.js';
-    import { CedrellaAuth }  from './src/services/CedrellaAuth.js';
+    import { PT }             from './src/i18n/pt.js';
+    import { CedrellaAuth }   from './src/services/CedrellaAuth.js';
     import { StorageService } from './src/services/StorageService.cloud.js';
-    import { AuthScreen }    from './src/components/AuthScreen.js';
-    import { Dashboard }     from './src/components/Dashboard.js';
+    import { AuthScreen }     from './src/components/AuthScreen.js';
+    import { Dashboard }      from './src/components/Dashboard.js';
 
     function mountDashboard() {
       new Dashboard().mount('#app');
 
-      // Inject sign-out button into the app header (no change to Dashboard.js)
+      // Inject sign-out button into header without changing Dashboard.js
       if (CedrellaAuth.isConfigured()) {
         const header = document.querySelector('.app-header');
         if (header && !header.querySelector('.btn--signout')) {
@@ -60,27 +60,38 @@
       new AuthScreen().mount('#app');
     }
 
-    if (!CedrellaAuth.isConfigured()) {
-      // No Supabase credentials — run in local-only mode
-      mountDashboard();
-    } else {
-      const session = await CedrellaAuth.getSession();
-      if (session) {
+    function mountError(err) {
+      document.getElementById('app').innerHTML =
+        `<div class="auth-screen"><div class="auth-card">
+           <p style="color:var(--color-danger-dark);font-weight:600">Erro ao carregar</p>
+           <pre style="font-size:0.75rem;white-space:pre-wrap;color:var(--color-text-muted)">${err?.message ?? err}</pre>
+           <button class="btn btn--ghost btn--full" onclick="location.reload()">Tentar novamente</button>
+         </div></div>`;
+    }
+
+    try {
+      if (!CedrellaAuth.isConfigured()) {
         mountDashboard();
       } else {
-        mountAuth();
+        // onAuthStateChange fires first on page load (INITIAL_SESSION or SIGNED_IN),
+        // so we set it up before getSession() to avoid missing the event.
+        CedrellaAuth.onAuthStateChange(async (event, session) => {
+          if (event === 'SIGNED_IN') {
+            await StorageService.pullFromCloud().catch(console.warn);
+            mountDashboard();
+          }
+          if (event === 'SIGNED_OUT') {
+            mountAuth();
+          }
+          // INITIAL_SESSION fires immediately on register
+          if (event === 'INITIAL_SESSION') {
+            session ? mountDashboard() : mountAuth();
+          }
+        });
       }
-
-      CedrellaAuth.onAuthStateChange(async (event) => {
-        if (event === 'SIGNED_IN') {
-          // Pull all cloud data into IndexedDB before mounting
-          await StorageService.pullFromCloud().catch(console.warn);
-          mountDashboard();
-        }
-        if (event === 'SIGNED_OUT') {
-          mountAuth();
-        }
-      });
+    } catch (err) {
+      console.error('[Cedrella] Fatal:', err);
+      mountError(err);
     }
   </script>
 

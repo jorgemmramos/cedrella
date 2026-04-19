@@ -3,8 +3,12 @@ import { SUPABASE_URL, SUPABASE_ANON } from '../../config.js';
 
 // Singleton Supabase client — imported by StorageService.cloud.js to share the same session.
 // Null when credentials are not configured (local-only mode).
+// flowType: 'implicit' — tokens arrive in URL hash, works across browsers/webviews.
+// (PKCE default fails when the magic link is opened in Gmail/webview ≠ original browser.)
 export const supabase = (SUPABASE_URL && SUPABASE_ANON)
-  ? createClient(SUPABASE_URL, SUPABASE_ANON)
+  ? createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: { flowType: 'implicit' },
+    })
   : null;
 
 export class CedrellaAuth {
@@ -22,11 +26,15 @@ export class CedrellaAuth {
     if (error) throw error;
   }
 
-  /** Returns the current session or null. */
+  /** Returns the current session or null. Never throws. */
   static async getSession() {
     if (!supabase) return null;
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    } catch {
+      return null;
+    }
   }
 
   static async signOut() {
