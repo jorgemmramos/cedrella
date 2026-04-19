@@ -13,14 +13,75 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon.svg" />
   <link rel="stylesheet" href="src/theme/CedrellaTheme.css" />
+
+  <!-- Dexie (IndexedDB) — global used by StorageService.cloud.js -->
   <script src="https://unpkg.com/dexie@3/dist/dexie.min.js"></script>
+
+  <!--
+    Import map: remaps StorageService.js → StorageService.cloud.js.
+    Dashboard.js imports StorageService.js by name — this intercepts that
+    import and swaps in the cloud implementation without touching Dashboard.js.
+  -->
+  <script type="importmap">
+  {
+    "imports": {
+      "./src/services/StorageService.js": "./src/services/StorageService.cloud.js"
+    }
+  }
+  </script>
 </head>
 <body>
   <div id="app"></div>
 
   <script type="module">
-    import { Dashboard } from './src/components/Dashboard.js';
-    new Dashboard().mount('#app');
+    import { PT }            from './src/i18n/pt.js';
+    import { CedrellaAuth }  from './src/services/CedrellaAuth.js';
+    import { StorageService } from './src/services/StorageService.cloud.js';
+    import { AuthScreen }    from './src/components/AuthScreen.js';
+    import { Dashboard }     from './src/components/Dashboard.js';
+
+    function mountDashboard() {
+      new Dashboard().mount('#app');
+
+      // Inject sign-out button into the app header (no change to Dashboard.js)
+      if (CedrellaAuth.isConfigured()) {
+        const header = document.querySelector('.app-header');
+        if (header && !header.querySelector('.btn--signout')) {
+          const btn = document.createElement('button');
+          btn.className   = 'btn btn--signout';
+          btn.textContent = PT.signOut;
+          btn.addEventListener('click', () => CedrellaAuth.signOut());
+          header.appendChild(btn);
+        }
+      }
+    }
+
+    function mountAuth() {
+      new AuthScreen().mount('#app');
+    }
+
+    if (!CedrellaAuth.isConfigured()) {
+      // No Supabase credentials — run in local-only mode
+      mountDashboard();
+    } else {
+      const session = await CedrellaAuth.getSession();
+      if (session) {
+        mountDashboard();
+      } else {
+        mountAuth();
+      }
+
+      CedrellaAuth.onAuthStateChange(async (event) => {
+        if (event === 'SIGNED_IN') {
+          // Pull all cloud data into IndexedDB before mounting
+          await StorageService.pullFromCloud().catch(console.warn);
+          mountDashboard();
+        }
+        if (event === 'SIGNED_OUT') {
+          mountAuth();
+        }
+      });
+    }
   </script>
 
   <script>

@@ -25,6 +25,9 @@ jobs:
           cp web/public/manifest.json _deploy/
           cp web/public/sw.js         _deploy/
 
+          # Supabase config (credentials filled in by user — safe to deploy)
+          cp web/config.js            _deploy/
+
           # Icons (lives at web/icons/ → served as /icons/)
           cp -r web/icons _deploy/
 
