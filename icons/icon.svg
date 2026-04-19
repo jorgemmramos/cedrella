@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Full-bleed background — safe for maskable cropping by OS -->
+  <rect width="512" height="512" fill="#2D6A4F"/>
+  <!-- Leaf body: centered, top of leaf at y=88, bottom at y=372 (safe zone 80%=410px) -->
+  <path d="M256 88 C178 152 150 212 150 268 a106 106 0 0 0 212 0 C362 212 334 152 256 88Z"
+        fill="#52B788"/>
+  <!-- Center vein -->
+  <line x1="256" y1="88" x2="256" y2="372"
+        stroke="#1B4332" stroke-width="13" stroke-linecap="round"/>
+  <!-- Side veins -->
+  <path d="M256 205 Q304 242 318 288 M256 205 Q208 242 194 288
+           M256 272 Q296 302 306 342 M256 272 Q216 302 206 342"
+        stroke="#1B4332" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.4"/>
+</svg>
