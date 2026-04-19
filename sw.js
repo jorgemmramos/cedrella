@@ -1,8 +1,9 @@
-const CACHE_NAME = 'cedrella-v1.0';
+const CACHE_NAME = 'cedrella-v1.5';
 
 // All app-shell files, relative to the SW scope
 const SHELL_FILES = [
   './',
+  './config.js',
   './src/theme/CedrellaTheme.css',
   './manifest.json',
   './icons/icon.svg',
@@ -11,8 +12,11 @@ const SHELL_FILES = [
   './src/components/Dashboard.js',
   './src/components/MetricCard.js',
   './src/components/AlertBanner.js',
+  './src/components/AuthScreen.js',
   './src/services/BleService.js',
   './src/services/StorageService.js',
+  './src/services/StorageService.cloud.js',
+  './src/services/CedrellaAuth.js',
   './src/i18n/pt.js',
 ];
 

@@ -26,4 +26,14 @@ export const PT = {
   plantName:         'Nome da planta',
   demoMode:          'Modo demonstração',
   installApp:        'Instalar app',
+  // Auth screen
+  authSubtitle:      'Monitorização inteligente de plantas',
+  emailLabel:        'Email',
+  sendMagicLink:     'Enviar link mágico',
+  checkEmail:        'Verifica o teu email — abre o link enviado para',
+  resend:            'Reenviar',
+  signOut:           'Sair',
+  signingIn:         'A entrar…',
+  localModeWarning:  'Supabase não configurado — dados guardados apenas localmente.',
+  continueOffline:   'Continuar sem conta',
 };
