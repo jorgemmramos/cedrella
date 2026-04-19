@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cedrella-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "web/public", "--listen", "3000"],
+      "port": 3000
+    }
+  ]
+}

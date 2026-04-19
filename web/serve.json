@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    { "source": "/",             "destination": "/public/index.html" },
+    { "source": "/sw.js",        "destination": "/public/sw.js" },
+    { "source": "/manifest.json","destination": "/public/manifest.json" }
+  ],
+  "headers": [
+    {
+      "source": "/public/sw.js",
+      "headers": [{ "key": "Service-Worker-Allowed", "value": "/" }]
+    }
+  ]
+}
